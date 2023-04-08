@@ -1,12 +1,13 @@
-from django_filters import FilterSet, BooleanFilter, CharFilter, NumberFilter, \
-    AllValuesMultipleFilter
+from django_filters import (AllValuesMultipleFilter, BooleanFilter, CharFilter,
+                            FilterSet, NumberFilter)
 from rest_framework.exceptions import ValidationError
 
 from recipes.models import Recipe
-
+# TODO: review
 
 class RecipeFilter(FilterSet):
-    is_favorited = CharFilter(field_name='is_favorited', method='filter_is_favorited')
+    is_favorited = CharFilter(field_name='is_favorited',
+                              method='filter_is_favorited')
     is_in_shopping_cart = CharFilter(
         method='filter_is_in_shopping_cart')
     author = NumberFilter(field_name='author_id')
@@ -37,5 +38,3 @@ class RecipeFilter(FilterSet):
         if value == 1:
             return queryset.filter(added_to_cart__user=user)
         return queryset.exclude(added_to_cart__user=user)
-
-

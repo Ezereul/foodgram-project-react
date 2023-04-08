@@ -1,36 +1,42 @@
 import os.path
 from pathlib import Path
 
-import rest_framework.authentication
+from dotenv import load_dotenv
+# TODO: review
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-98r8$@m!a1e@a$$-nd-v2yo6j!hjhu5+8guhx2mh&8*mk#qd#1'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '123wddwsWA@2131dw')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'host.docker.internal']
 
-
-
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
 
+THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     'django_filters',
+]
 
+LOCAL_APPS = [
     'recipes',
     'users',
     'api',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,16 +68,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram_api.wsgi.application'
 
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', '11111'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432')
     }
 }
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -90,7 +96,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -101,17 +106,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+STATIC_URL = '/backend-static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend-static')
 
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+MEDIA_URL = '/backend-media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend-media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -124,7 +125,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
     'SEARCH_PARAM': 'name'
 }
-
 
 LOGGING = {
     'version': 1,

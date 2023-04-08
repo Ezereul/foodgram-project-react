@@ -4,8 +4,12 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+COPY data .
+
+RUN pip install -r requirements.txt --no-cache-dir
 
 COPY . .
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN pip install gunicorn
+
+CMD ["gunicorn", "foodgram_api.wsgi:application", "--bind", "0:8000"]

@@ -5,9 +5,6 @@ from recipes.models import Tag, Recipe, Ingredient
 
 User = get_user_model()
 
-class TagInLine(admin.TabularInline):
-    model = Recipe.tags.through
-
 
 class IngredientInLine(admin.TabularInline):
     model = Recipe.ingredients.through
@@ -15,7 +12,7 @@ class IngredientInLine(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = (TagInLine, IngredientInLine)
+    inlines = (IngredientInLine,)
     list_display = ('name', 'author')
     list_filter = ('name', 'author', 'tags')
     readonly_fields = ('in_favorite',)
@@ -23,7 +20,6 @@ class RecipeAdmin(admin.ModelAdmin):
     def in_favorite(self, obj):
         count = obj.favorited_by.count()
         return f'Количество добавлений в избранное: {count}'
-
 
 
 @admin.register(Tag)
@@ -35,4 +31,3 @@ class TagAdmin(admin.ModelAdmin):
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     list_filter = ('name',)
-
