@@ -1,7 +1,8 @@
-from django_filters import (AllValuesMultipleFilter, BooleanFilter,
-                            FilterSet, NumberFilter)
+from django_filters import (AllValuesMultipleFilter, BooleanFilter, FilterSet,
+                            NumberFilter)
 
 from recipes.models import Recipe
+
 
 class RecipeFilter(FilterSet):
     is_favorited = BooleanFilter(field_name='is_favorited')

@@ -1,30 +1,17 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import (ShoppingCart, FavoriteRecipe, Ingredient, IngredientRecipe,
-                            Recipe, Tag)
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
+                            Recipe, ShoppingCart, Tag)
 from users.models import Subscribtion
 
 from .paginators import SubRecipePagination
 from .utils import create_recipeingredient
 
 User = get_user_model()
-
-
-class SetPasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(validators=[validate_password],
-                                         required=True)
-    current_password = serializers.CharField(required=True)
-
-    def validate_current_password(self, current_password):
-        current_user = self.context['request'].user
-        if not check_password(current_password, current_user.password):
-            raise serializers.ValidationError('Неверный текущий пароль')
-        return current_password
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -105,7 +92,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         current_user = self.context['request'].user
         if current_user.is_authenticated:
-            return ShoppingCart.objects.filter(recipe=obj, user=current_user).exists()
+            return ShoppingCart.objects.filter(recipe=obj,
+                                               user=current_user).exists()
         return False
 
 
@@ -115,6 +103,9 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+    def validate(self, attrs):
+        pass
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
@@ -178,8 +169,50 @@ class SubscribeSerializer(UserSerializer):
         serializer = ShortRecipeSerializer(page, many=True)
         return serializer.data
 
-    def validate_id(self, id):
-        if id == self.context['request'].user.id:
+
+class ValidateSubscriptionSerializer(serializers.Serializer):
+    def validate(self, attrs):
+        subscriber = self.context['request'].user
+        subscribe_to = self.context['subscribe_to']
+        method = self.context['request'].method
+
+        if subscriber == subscribe_to:
             raise serializers.ValidationError(
-                'Вы не можете подписаться на себя')
-        return id
+                'Вы не можете подписаться или отписаться от самого себя')
+        if method == 'POST':
+            if Subscribtion.objects.filter(
+                    subscriber=subscriber,
+                    subscribed_to=subscribe_to).exists():
+                raise serializers.ValidationError('Вы уже подписаны')
+        elif method == 'DELETE':
+            if not Subscribtion.objects.filter(
+                    subscriber=subscriber,
+                    subscribed_to=subscribe_to).exists():
+                raise serializers.ValidationError('Вы не подписаны')
+
+        return attrs
+
+
+class FavoriteCartSerializer(serializers.Serializer):
+    def validate(self, attrs):
+        action = self.context['action']
+        user = self.context['user']
+        recipe = self.context['recipe']
+        method = self.context['method']
+        favorited = FavoriteRecipe.objects.filter(
+            recipe=recipe, user=user).exists()
+        in_cart = ShoppingCart.objects.filter(
+            recipe=recipe, user=user).exists()
+
+        if action == 'favorite':
+            if method == 'POST' and favorited:
+                raise serializers.ValidationError('Уже добавлен в избранное')
+            elif method == 'DELETE' and not favorited:
+                raise serializers.ValidationError('Не в избранном')
+        elif action == 'shopping_cart':
+            if method == 'POST' and in_cart:
+                raise serializers.ValidationError('Уже в корзине')
+            elif method == 'DELETE' and not in_cart:
+                raise serializers.ValidationError('Не в корзине')
+
+        return attrs

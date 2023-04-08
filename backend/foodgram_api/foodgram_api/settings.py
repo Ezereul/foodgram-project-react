@@ -2,7 +2,7 @@ import os.path
 from pathlib import Path
 
 from dotenv import load_dotenv
-# TODO: review
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -124,6 +124,21 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.v1.paginators.ProjectPagination',
     'PAGE_SIZE': 5,
     'SEARCH_PARAM': 'name'
+}
+
+DJOSER = {
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+        'user_me': ['djoser.permissions.CurrentUserOrAdmin'],
+        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
+    },
+    'SERIALIZERS': {
+        'user': 'api.v1.serializers.UserSerializer',
+        'user_list': 'api.v1.serializers.UserSerializer',
+        'current_user': 'api.v1.serializers.UserSerializer',
+    },
+    'HIDE_USERS': False
 }
 
 LOGGING = {
