@@ -1,6 +1,5 @@
-from rest_framework import serializers
-
 from recipes.models import Ingredient, IngredientRecipe, Recipe
+from rest_framework import serializers
 
 
 def create_recipeingredient(validated_data, recipe=None, update=False):
