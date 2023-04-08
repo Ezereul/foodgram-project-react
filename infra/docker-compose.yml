@@ -14,9 +14,9 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - web
+      - backend
 
-  web:
+  backend:
     build:
       context: ../backend/foodgram_api
       dockerfile: Dockerfile
