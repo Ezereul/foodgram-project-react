@@ -13,7 +13,7 @@ from .paginators import SubRecipePagination
 from .utils import create_recipeingredient
 
 User = get_user_model()
-# TODO: review
+
 
 class SetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(validators=[validate_password],
