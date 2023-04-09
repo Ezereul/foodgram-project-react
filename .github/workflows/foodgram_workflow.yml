@@ -59,9 +59,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo docker-compose stop
-            sudo docker-compose rm -f backend
-            sudo docker rmi -f ezereul/foodgram:v1.0
+            echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose stop
+            echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose rm -f backend
+            echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker rmi -f ezereul/foodgram:v1.0
             touch ${{ secrets.HOME_PATH }}.env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> ${{ secrets.HOME_PATH }}.env
             echo DB_NAME=${{ secrets.DB_NAME }} >> ${{ secrets.HOME_PATH }}.env
