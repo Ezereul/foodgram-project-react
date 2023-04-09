@@ -60,6 +60,7 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd foodgram
+            echo ls
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose stop
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose rm -f backend
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker rmi -f ezereul/foodgram:v1.0
