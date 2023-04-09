@@ -59,6 +59,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            cd foodgram
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose stop
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose rm -f backend
             echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker rmi -f ezereul/foodgram:v1.0
@@ -71,6 +72,7 @@ jobs:
             echo DB_PORT=${{ secrets.DB_PORT }} >> ${{ secrets.HOME_PATH }}.env
             echo DEBUG=False >> ${{ secrets.HOME_PATH }}.env
             echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_KEY }} >> ${{ secrets.HOME_PATH }}.env
+            echo ${{ secrets.SUDO_PASSWORD }} | sudo -S docker-compose up -d
 
   send_message:
     runs-on: ubuntu-latest
