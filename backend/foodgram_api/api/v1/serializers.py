@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
@@ -8,7 +10,6 @@ from rest_framework import serializers
 from users.models import Subscribtion
 
 from .paginators import SubRecipePagination
-from .utils import create_recipeingredient
 
 User = get_user_model()
 
@@ -103,9 +104,6 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
-    def validate(self, attrs):
-        pass
-
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     ingredients = CreateUpdateIngredientRecipeSerializer(
@@ -129,13 +127,13 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        recipe = create_recipeingredient(validated_data)
+        recipe = self.create_recipeingredient(validated_data)
 
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        create_recipeingredient(validated_data, instance, update=True)
+        self.create_recipeingredient(validated_data, instance, update=True)
 
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('image', instance.image)
@@ -145,6 +143,35 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+    def create_recipeingredient(self, validated_data: dict,
+                                recipe: Recipe = None,
+                                update: bool = False) -> Union[Recipe, None]:
+        ingredients_data = validated_data.pop('ingredientrecipe_set')
+        tags_data = validated_data.pop('tags')
+        if update:
+            IngredientRecipe.objects.filter(recipe=recipe).delete()
+        else:
+            recipe = Recipe.objects.create(**validated_data)
+        ingredients_to_create = []
+        for ingredient_data in ingredients_data:
+            ingredient_id = ingredient_data['ingredient']['id']
+            ingredient_amount = ingredient_data['amount']
+            try:
+                ingredient = Ingredient.objects.get(id=ingredient_id)
+            except Ingredient.DoesNotExist:
+                raise serializers.ValidationError(
+                    f'Ingredient with id={ingredient_id} does not exist')
+            ingredient_recipe = IngredientRecipe(
+                recipe=recipe, ingredient=ingredient, amount=ingredient_amount)
+            ingredients_to_create.append(ingredient_recipe)
+
+        if ingredients_to_create:
+            IngredientRecipe.objects.bulk_create(ingredients_to_create)
+
+        recipe.tags.set(tags_data)
+        if not update:
+            return recipe
 
 
 class SubscribeSerializer(UserSerializer):

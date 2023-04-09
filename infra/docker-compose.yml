@@ -17,9 +17,7 @@ services:
       - backend
 
   backend:
-    build:
-      context: ../backend/foodgram_api
-      dockerfile: Dockerfile
+    image: ezereul/foodgram:v1.0
     restart: always
     volumes:
       - static_value:/app/backend-static/
