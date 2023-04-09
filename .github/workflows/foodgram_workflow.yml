@@ -63,14 +63,14 @@ jobs:
             sudo docker-compose rm -f backend
             sudo docker rmi -f ezereul/foodgram:v1.0
             touch ${{ secrets.HOME_PATH }}.env
-            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> {{ secrets.HOME_PATH }}.env
-            echo DB_NAME=${{ secrets.DB_NAME }} >> {{ secrets.HOME_PATH }}.env
-            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> {{ secrets.HOME_PATH }}.env
-            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> {{ secrets.HOME_PATH }}.env
-            echo DB_HOST=${{ secrets.DB_HOST }} >> {{ secrets.HOME_PATH }}.env
-            echo DB_PORT=${{ secrets.DB_PORT }} >> {{ secrets.HOME_PATH }}.env
-            echo DEBUG=False >> {{ secrets.HOME_PATH }}.env
-            echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_KEY }} >> {{ secrets.HOME_PATH }}.env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> ${{ secrets.HOME_PATH }}.env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> ${{ secrets.HOME_PATH }}.env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> ${{ secrets.HOME_PATH }}.env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> ${{ secrets.HOME_PATH }}.env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> ${{ secrets.HOME_PATH }}.env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> ${{ secrets.HOME_PATH }}.env
+            echo DEBUG=False >> ${{ secrets.HOME_PATH }}.env
+            echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_KEY }} >> ${{ secrets.HOME_PATH }}.env
 
   send_message:
     runs-on: ubuntu-latest
