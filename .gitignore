@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 media/
 backend-media/
+infra-dev/
 __pycache__/
 *.py[cod]
 *$py.class

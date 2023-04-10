@@ -16,8 +16,8 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from users.models import Subscribtion
 
+from users.models import Subscribtion
 from .constants import X_FOR_PDF_FILE, Y_FOR_PDF_FILE
 from .filters import RecipeFilter
 from .mixins import RetrieveListViewSet
@@ -33,7 +33,7 @@ User = get_user_model()
 BASE_DIR = settings.BASE_DIR
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
