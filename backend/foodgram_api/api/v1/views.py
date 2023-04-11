@@ -62,7 +62,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'],
             permission_classes=(IsAuthenticated,),
-            detail=False,)
+            detail=False,
+            pagination_class=ProjectPagination())
     def subscriptions(self, request):
         queryset = User.objects.filter(
             subscribing__subscriber=self.request.user)

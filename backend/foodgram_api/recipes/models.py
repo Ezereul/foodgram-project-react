@@ -71,6 +71,13 @@ class IngredientRecipe(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     amount = models.IntegerField(validators=[MinValueValidator(1)])
 
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='unique_ingredient_recipe'),
+        )
+
     def __str__(self):
         return f'{self.amount} {self.ingredient_id} {self.recipe_id}'
 

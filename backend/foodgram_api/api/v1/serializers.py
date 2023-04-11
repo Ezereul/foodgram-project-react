@@ -66,6 +66,12 @@ class CreateUpdateIngredientRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ('id', 'amount')
 
+    def validate(self, attrs):
+        if attrs['amount'] < 1:
+            raise serializers.ValidationError('Количество не может быть '
+                                              'отрицательным')
+        return attrs
+
 
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
@@ -74,7 +80,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                                              source='ingredientrecipe_set')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         model = Recipe
@@ -109,14 +115,32 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     ingredients = CreateUpdateIngredientRecipeSerializer(
         many=True, source='ingredientrecipe_set')
     tags = serializers.PrimaryKeyRelatedField(many=True,
-                                              queryset=Tag.objects.all())
+                                              queryset=Tag.objects.all(),
+                                              required=True, allow_empty=False)
     author = UserSerializer(default=serializers.CurrentUserDefault())
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'ingredients', 'name', 'image',
                   'text', 'cooking_time', 'author')
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError('Ингредиенты не добавлены')
+        ingredients_uniq_ids = []
+        for ingredient_obj in value:
+            id = ingredient_obj['ingredient']['id']
+            if id not in ingredients_uniq_ids:
+                ingredients_uniq_ids.append(id)
+            else:
+                raise serializers.ValidationError('Ингредиент уже добавлен')
+        return value
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError('Обязательное поле')
+        return value
 
     def to_representation(self, instance):
         serializer = RecipeSerializer(
@@ -166,8 +190,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe, ingredient=ingredient, amount=ingredient_amount)
             ingredients_to_create.append(ingredient_recipe)
 
-        if ingredients_to_create:
-            IngredientRecipe.objects.bulk_create(ingredients_to_create)
+        IngredientRecipe.objects.bulk_create(ingredients_to_create)
 
         recipe.tags.set(tags_data)
         if not update:
